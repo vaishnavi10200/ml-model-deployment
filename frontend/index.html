@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iris Classifier — GCP ML API</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Background botanical decorations -->
+  <div class="bg-decoration">
+    <div class="petal petal-1"></div>
+    <div class="petal petal-2"></div>
+    <div class="petal petal-3"></div>
+    <div class="petal petal-4"></div>
+    <div class="petal petal-5"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">IrisAI</span>
+      </div>
+      <div class="api-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-label" id="statusLabel">Checking API...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="hero-eyebrow">Deployed on GCP Cloud Run</p>
+    <h1 class="hero-title">Iris Flower<br/><em>Classifier</em></h1>
+    <p class="hero-subtitle">Enter flower measurements below and let the ML model predict the species in real time.</p>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Input Card -->
+    <div class="card input-card">
+      <div class="card-label">Input Measurements</div>
+
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label for="sepalLength">
+            <span class="input-icon">◈</span>
+            Sepal Length
+            <span class="unit">cm</span>
+          </label>
+          <div class="slider-row">
+            <input type="range" id="sepalLengthSlider" min="4.0" max="8.0" step="0.1" value="5.1" title="Sepal Length Slider" aria-label="Sepal Length Slider" />
+            <input type="number" id="sepalLength" value="5.1" min="4.0" max="8.0" step="0.1" placeholder="5.1" title="Sepal Length" />
+          </div>
+          <div class="range-labels"><span>4.0</span><span>8.0</span></div>
+        </div>
+
+        <div class="input-group">
+          <label for="sepalWidth">
+            <span class="input-icon">◈</span>
+            Sepal Width
+            <span class="unit">cm</span>
+          </label>
+          <div class="slider-row">
+            <input type="range" id="sepalWidthSlider" min="2.0" max="4.5" step="0.1" value="3.5" title="Sepal Width Slider" aria-label="Sepal Width Slider" />
+            <input type="number" id="sepalWidth" value="3.5" min="2.0" max="4.5" step="0.1" placeholder="3.5" title="Sepal Width" />
+          </div>
+          <div class="range-labels"><span>2.0</span><span>4.5</span></div>
+        </div>
+
+        <div class="input-group">
+          <label for="petalLength">
+            <span class="input-icon">◈</span>
+            Petal Length
+            <span class="unit">cm</span>
+          </label>
+          <div class="slider-row">
+            <input type="range" id="petalLengthSlider" min="1.0" max="7.0" step="0.1" value="1.4" title="Petal Length Slider" aria-label="Petal Length Slider" />
+            <input type="number" id="petalLength" value="1.4" min="1.0" max="7.0" step="0.1" placeholder="1.4" title="Petal Length" />
+          </div>
+          <div class="range-labels"><span>1.0</span><span>7.0</span></div>
+        </div>
+
+        <div class="input-group">
+          <label for="petalWidth">
+            <span class="input-icon">◈</span>
+            Petal Width
+            <span class="unit">cm</span>
+          </label>
+          <div class="slider-row">
+            <input type="range" id="petalWidthSlider" min="0.1" max="2.5" step="0.1" value="0.2" title="Petal Width Slider" aria-label="Petal Width Slider" />
+            <input type="number" id="petalWidth" value="0.2" min="0.1" max="2.5" step="0.1" placeholder="0.2" title="Petal Width" />
+          </div>
+          <div class="range-labels"><span>0.1</span><span>2.5</span></div>
+        </div>
+      </div>
+
+      <!-- Preset buttons -->
+      <div class="presets">
+        <span class="presets-label">Try a sample:</span>
+        <button class="preset-btn" data-values="5.1,3.5,1.4,0.2">Setosa</button>
+        <button class="preset-btn" data-values="6.0,2.9,4.5,1.5">Versicolor</button>
+        <button class="preset-btn" data-values="6.7,3.1,5.6,2.4">Virginica</button>
+      </div>
+
+      <button class="predict-btn" id="predictBtn" onclick="predict()">
+        <span class="btn-text">Classify Flower</span>
+        <span class="btn-icon">→</span>
+      </button>
+    </div>
+
+    <!-- Result Card -->
+    <div class="card result-card" id="resultCard">
+      <div class="card-label">Prediction Result</div>
+
+      <!-- Loading state -->
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <p>Consulting the model...</p>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-flower">✿</div>
+        <p>Your prediction will appear here</p>
+      </div>
+
+      <!-- Result state -->
+      <div class="result-state" id="resultState">
+        <div class="species-display">
+          <div class="species-icon" id="speciesIcon"></div>
+          <div class="species-name" id="speciesName"></div>
+          <div class="species-sci" id="speciesSci"></div>
+        </div>
+
+        <div class="confidence-block">
+          <div class="confidence-label">Confidence</div>
+          <div class="confidence-value" id="confidenceValue"></div>
+          <div class="confidence-bar">
+            <div class="confidence-fill" id="confidenceFill"></div>
+          </div>
+        </div>
+
+        <div class="probabilities">
+          <div class="prob-label">All Probabilities</div>
+          <div class="prob-bars" id="probBars"></div>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div class="error-state" id="errorState">
+        <div class="error-icon">⚠</div>
+        <p id="errorMsg">Something went wrong.</p>
+        <button class="retry-btn" onclick="predict()">Try Again</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Powered by <strong>GCP Cloud Run</strong> · Random Forest Classifier · Iris Dataset</p>
+    <p class="api-url">API: <code>https://iris-api-oc24zgbr5a-el.a.run.app</code></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
