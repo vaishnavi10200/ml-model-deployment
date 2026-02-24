@@ -61,3 +61,14 @@ jobs:
           gcloud run services describe iris-api \
             --region asia-south1 \
             --format 'value(status.url)'
+
+      - name: Deploy frontend to GCP Cloud Storage
+        run: |
+          gsutil cp frontend/index.html gs://iris-frontend-yourname/
+          gsutil cp frontend/style.css gs://iris-frontend-yourname/
+          gsutil cp frontend/script.js gs://iris-frontend-yourname/
+          gsutil setmeta -h "Content-Type:text/html" gs://iris-frontend-yourname/index.html
+          gsutil setmeta -h "Content-Type:text/css" gs://iris-frontend-yourname/style.css
+          gsutil setmeta -h "Content-Type:application/javascript" gs://iris-frontend-yourname/script.js
+          echo "Frontend live at:"
+          echo "https://storage.googleapis.com/iris-frontend-yourname/index.html"
