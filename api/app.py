@@ -12,6 +12,19 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# ✅ CORS - Allow frontend to call this API from any origin
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+# ✅ Handle preflight OPTIONS request for /predict
+@app.route('/predict', methods=['OPTIONS'])
+def predict_options():
+    return '', 204
+
 # Load model from GCS
 def load_model():
     client = storage.Client()
