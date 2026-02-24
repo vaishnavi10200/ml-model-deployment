@@ -64,11 +64,11 @@ jobs:
 
       - name: Deploy frontend to GCP Cloud Storage
         run: |
-          gsutil cp frontend/index.html gs://iris-frontend-yourname/
-          gsutil cp frontend/style.css gs://iris-frontend-yourname/
-          gsutil cp frontend/script.js gs://iris-frontend-yourname/
-          gsutil setmeta -h "Content-Type:text/html" gs://iris-frontend-yourname/index.html
-          gsutil setmeta -h "Content-Type:text/css" gs://iris-frontend-yourname/style.css
-          gsutil setmeta -h "Content-Type:application/javascript" gs://iris-frontend-yourname/script.js
+          gsutil cp frontend/index.html gs://iris-frontend-vaishnavi-488407/
+          gsutil cp frontend/style.css gs://iris-frontend-vaishnavi-488407/
+          gsutil cp frontend/script.js gs://iris-frontend-vaishnavi-488407/
+          gsutil setmeta -h "Content-Type:text/html" gs://iris-frontend-vaishnavi-488407/index.html
+          gsutil setmeta -h "Content-Type:text/css" gs://iris-frontend-vaishnavi-488407/style.css
+          gsutil setmeta -h "Content-Type:application/javascript" gs://iris-frontend-vaishnavi-488407/script.js
           echo "Frontend live at:"
-          echo "https://storage.googleapis.com/iris-frontend-yourname/index.html"
+          echo "https://storage.googleapis.com/iris-frontend-vaishnavi-488407/index.html"
