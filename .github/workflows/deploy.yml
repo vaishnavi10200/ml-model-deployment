@@ -24,7 +24,25 @@ jobs:
         run: |
           gcloud builds submit \
             --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/iris-api \
+            --timeout=600 \
+            --async \
             ./api
+
+          echo "Build submitted. Waiting for image to be ready..."
+          sleep 90
+
+      - name: Verify image exists
+        run: |
+          echo "Checking if image was built successfully..."
+          for i in 1 2 3 4 5; do
+            if gcloud container images describe gcr.io/${{ secrets.GCP_PROJECT_ID }}/iris-api:latest --format='value(image_summary.digest)' 2>/dev/null; then
+              echo "Image found!"
+              break
+            else
+              echo "Attempt $i: Image not ready yet, waiting 30s..."
+              sleep 30
+            fi
+          done
 
       - name: Deploy to Cloud Run
         run: |
@@ -33,10 +51,13 @@ jobs:
             --platform managed \
             --region asia-south1 \
             --allow-unauthenticated \
+            --memory 512Mi \
+            --timeout 300 \
             --set-env-vars BUCKET_NAME=${{ secrets.BUCKET_NAME }}
 
       - name: Show deployed URL
         run: |
+          echo "Your live API URL:"
           gcloud run services describe iris-api \
             --region asia-south1 \
             --format 'value(status.url)'
